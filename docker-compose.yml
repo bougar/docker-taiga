@@ -1,0 +1,32 @@
+---
+version: '2.1'
+services:
+  postgres:
+    image: postgres:12-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: taiga
+      POSTGRES_PASSWORD: DBPassword
+      POSTGRES_DB: taiga
+  rabbit:
+    image: rabbitmq:3.7-alpine
+    restart: always
+    ports:
+      - "5672:5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: taiga
+      RABBITMQ_DEFAULT_PASS: StrongMQPassword
+      RABBITMQ_DEFAULT_VHOST: taiga
+  taiga-backend:
+    build: taiga_backend
+    restart: always
+    depends_on:
+      - rabbit
+    links:
+      - rabbit
+  taiga-frontend:
+    build: taiga_frontend
+    ports:
+      - "8000:80"
+    links:
+      - taiga-backend
